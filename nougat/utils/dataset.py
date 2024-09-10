@@ -20,6 +20,7 @@ import orjson
 from torch.utils.data import Dataset
 from transformers.modeling_utils import PreTrainedModel
 from nougat.dataset.rasterize import rasterize_paper
+import pandas as pd
 
 
 class ImageDataset(torch.utils.data.Dataset):
@@ -205,6 +206,44 @@ class SciPDFDataset(Dataset):
             yield self[i]
 
 
+class TexDataset(Dataset):
+    def __init__(self, 
+                 root_path:str,
+                 split: str = "train"):
+        super().__init__()
+        if split not in ["train", "valid", "test"]:
+            raise ValueError("split should be either 'train' or 'valid' or 'test'")
+        if split == "train":
+            self.file_path = os.path.join(root_path, "im2latex_train.lst")
+        elif split == "valid":
+            self.file_path = os.path.join(root_path, "im2latex_validate.lst")
+        elif split == "test":
+            self.file_path = os.path.join(root_path, "im2latex_test.lst")
+        
+        self.img_dir = os.path.join(root_path, "formula_images")
+        self.formulas_path = os.path.join(root_path, "im2latex_formulas.lst")
+        self.df = self._get_dataframe(self.file_path)
+    
+    def _get_dataframe(self, file_path: str) -> pd.DataFrame:
+        df = pd.read_csv(file_path, sep=" ", header=None, names=["formula_idx", "image_name", "render_type"])
+        formulas = []
+        with open(self.formulas_path, 'r', encoding='utf-8', errors='ignore') as file:
+            formulas = file.readlines()
+        formulas = [formula.strip() for formula in formulas]
+        df['formula_idx'] = df['formula_idx'].apply(lambda idx: formulas[idx])
+        return df
+        
+    def __len__(self) -> int:
+        return len(self.df)
+    def __getitem__(self, idx: int) -> Dict:
+        formula = self.df['formula_idx'].iloc[idx]
+        image = self.df['image_name'].iloc[idx]
+        img_path = os.path.join(self.img_dir , "{}.png".format(image))
+        img = Image.open(img_path).convert("RGB")
+        return {"image": img, 
+                "ground_truth": formula}
+    
+
 class NougatDataset(Dataset):
     """
     Args:
@@ -226,9 +265,10 @@ class NougatDataset(Dataset):
         self.perturb = "NOUGAT_PERTURB" in os.environ and os.environ["NOUGAT_PERTURB"]
         # TODO improve naming conventions
         template = "%s"
-        self.dataset = SciPDFDataset(
-            dataset_path, split=self.split, template=template, root_name=root_name
-        )
+        # self.dataset = SciPDFDataset(
+        #     dataset_path, split=self.split, template=template, root_name=root_name
+        # )
+        self.dataset = TexDataset(dataset_path, split=self.split)
         self.dataset_length = len(self.dataset)
 
     def __len__(self) -> int:
