@@ -120,7 +120,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -143,3 +142,7 @@ ckpt*/
 
 # Misc
 pdfs
+
+# Data
+data/
+test_everything.py
