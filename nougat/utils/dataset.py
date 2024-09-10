@@ -239,7 +239,11 @@ class TexDataset(Dataset):
         formula = self.df['formula_idx'].iloc[idx]
         image = self.df['image_name'].iloc[idx]
         img_path = os.path.join(self.img_dir , "{}.png".format(image))
-        img = Image.open(img_path).convert("RGB")
+        try:
+            img = Image.open(img_path).convert("RGB")
+        except UnidentifiedImageError:
+            logging.info("Image %s could not be opened.", img_path)
+            return None
         return {"image": img, 
                 "ground_truth": formula}
     
