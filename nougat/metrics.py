@@ -33,7 +33,7 @@ def compute_metrics(pred, gt, minlen=4):
     hypothesis = pred.split()
     metrics["bleu"] = nltk.translate.bleu([reference], hypothesis)
     try:
-        metrics["meteor"] = nltk.translate.meteor([reference], hypothesis)
+        metrics["meteor"] = nltk.translate.meteor_score([reference], hypothesis)
     except LookupError:
         metrics["meteor"] = np.nan
     reference = set(reference)
