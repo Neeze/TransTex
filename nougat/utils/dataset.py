@@ -211,11 +211,11 @@ class TexDataset(Dataset):
                  root_path:str,
                  split: str = "train"):
         super().__init__()
-        if split not in ["train", "valid", "test"]:
+        if split not in ["train", "validation", "test"]:
             raise ValueError("split should be either 'train' or 'valid' or 'test'")
         if split == "train":
             self.file_path = os.path.join(root_path, "im2latex_train.lst")
-        elif split == "valid":
+        elif split == "validation":
             self.file_path = os.path.join(root_path, "im2latex_validate.lst")
         elif split == "test":
             self.file_path = os.path.join(root_path, "im2latex_test.lst")
