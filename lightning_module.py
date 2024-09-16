@@ -186,15 +186,18 @@ class NougatModelPLModule(pl.LightningModule):
         items["exp_version"] = f"{self.config.get('exp_version', '')}"
         return items
 
-    # @rank_zero_only
-    # def on_save_checkpoint(self, checkpoint):
-    #     save_path = (
-    #         Path(self.config.result_path)
-    #         / self.config.exp_name
-    #         / self.config.exp_version
-    #     )
-    #     self.model.save_pretrained(save_path)
-    #     self.model.decoder.tokenizer.save_pretrained(save_path)
+    @rank_zero_only
+    def on_save_checkpoint(self, checkpoint):
+        save_path = (
+            Path(self.config.result_path)
+            / self.config.exp_name
+            / self.config.exp_version
+        )
+        self.model.save_pretrained(save_path)
+        self.model.decoder.tokenizer.save_pretrained(save_path)
+        # self.optimizers().save(save_path / "optimizer.pt")
+        # self.lr_schedulers().save(save_path / "scheduler.pt")
+        # self.state_dict().save(save_path / "state_dict.pt")
 
 
 class NougatDataPLModule(pl.LightningDataModule):
