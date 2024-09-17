@@ -195,9 +195,6 @@ class NougatModelPLModule(pl.LightningModule):
         )
         self.model.save_pretrained(save_path)
         self.model.decoder.tokenizer.save_pretrained(save_path)
-        # self.optimizers().save(save_path / "optimizer.pt")
-        # self.lr_schedulers().save(save_path / "scheduler.pt")
-        # self.state_dict().save(save_path / "state_dict.pt")
 
 
 class NougatDataPLModule(pl.LightningDataModule):
