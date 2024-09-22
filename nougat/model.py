@@ -83,36 +83,37 @@ class SwinEncoder(nn.Module):
         # weight init with swin
         if not name_or_path:
             swin_state_dict = timm.create_model(
-                "swin_base_patch4_window12_384_finetune", pretrained=True
+                f"{name_or_path}", pretrained=True
             ).state_dict()
-            new_swin_state_dict = self.model.state_dict()
-            for x in new_swin_state_dict:
-                if x.endswith("relative_position_index") or x.endswith("attn_mask"):
-                    pass
-                elif (
-                    x.endswith("relative_position_bias_table")
-                    and self.model.layers[0].blocks[0].attn.window_size[0] != 12
-                ):
-                    pos_bias = swin_state_dict[x].unsqueeze(0)[0]
-                    old_len = int(math.sqrt(len(pos_bias)))
-                    new_len = int(2 * window_size - 1)
-                    pos_bias = pos_bias.reshape(1, old_len, old_len, -1).permute(
-                        0, 3, 1, 2
-                    )
-                    pos_bias = F.interpolate(
-                        pos_bias,
-                        size=(new_len, new_len),
-                        mode="bicubic",
-                        align_corners=False,
-                    )
-                    new_swin_state_dict[x] = (
-                        pos_bias.permute(0, 2, 3, 1)
-                        .reshape(1, new_len**2, -1)
-                        .squeeze(0)
-                    )
-                else:
-                    new_swin_state_dict[x] = swin_state_dict[x]
-            self.model.load_state_dict(new_swin_state_dict)
+            # new_swin_state_dict = self.model.state_dict()
+            # for x in new_swin_state_dict:
+            #     if x.endswith("relative_position_index") or x.endswith("attn_mask"):
+            #         pass
+            #     elif (
+            #         x.endswith("relative_position_bias_table")
+            #         and self.model.layers[0].blocks[0].attn.window_size[0] != 12
+            #     ):
+            #         pos_bias = swin_state_dict[x].unsqueeze(0)[0]
+            #         old_len = int(math.sqrt(len(pos_bias)))
+            #         new_len = int(2 * window_size - 1)
+            #         pos_bias = pos_bias.reshape(1, old_len, old_len, -1).permute(
+            #             0, 3, 1, 2
+            #         )
+            #         pos_bias = F.interpolate(
+            #             pos_bias,
+            #             size=(new_len, new_len),
+            #             mode="bicubic",
+            #             align_corners=False,
+            #         )
+            #         new_swin_state_dict[x] = (
+            #             pos_bias.permute(0, 2, 3, 1)
+            #             .reshape(1, new_len**2, -1)
+            #             .squeeze(0)
+            #         )
+            #     else:
+            #         new_swin_state_dict[x] = swin_state_dict[x]
+            print(f"Loading SwinTransformer weights from pretrained model code name {name_or_path}")
+            self.model.load_state_dict(swin_state_dict)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
