@@ -398,7 +398,7 @@ class NougatDataset(Dataset):
         # self.dataset = TexDataset(dataset_path, split=self.split) # Image to Latex 100k dataset
 
         self.dataset = CROHMEDataset(dataset_path, split=self.split) # CROHME dataset
-        
+
         self.dataset_length = len(self.dataset)
 
     def __len__(self) -> int:
