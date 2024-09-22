@@ -58,6 +58,11 @@ class NougatModelPLModule(pl.LightningModule):
                 )
             )
 
+        # Freeze the encoder if required
+        print(f"Freezing the encoder")
+        for param in self.model.encoder.parameters():
+            param.requires_grad = False
+
     def training_step(self, batch, batch_idx):
         image_tensors, decoder_input_ids, attention_masks = list(), list(), list()
         if batch is None:
