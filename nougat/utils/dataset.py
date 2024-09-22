@@ -341,6 +341,7 @@ class CROHMEDataset(Dataset):
             self.img_dir = os.path.join(root_path, split, "img")
         elif split in ["validation", "test"]:
             subset = input("Enter the subset name ['2014', '2016' , '2019']: ")
+            assert subset in ["2014", "2016", "2019"], "Invalid subset name. Choose from ['2014', '2016', '2019']"
             self.file_path = os.path.join(root_path, subset, "caption.txt")
             self.img_dir = os.path.join(root_path, subset, "img")
         

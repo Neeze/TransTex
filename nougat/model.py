@@ -515,7 +515,7 @@ class NougatModel(PreTrainedModel):
         self.decoder = BARTDecoder(
             max_position_embeddings=self.config.max_position_embeddings,
             decoder_layer=self.config.decoder_layer,
-            name_or_path=self.config.name_or_path,
+            # name_or_path=self.config.name_or_path,
             hidden_dimension=self.config.hidden_dimension,
         )
 
