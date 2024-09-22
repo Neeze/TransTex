@@ -207,6 +207,39 @@ class SciPDFDataset(Dataset):
 
 
 class TexDataset(Dataset):
+    """
+    Dataset for the Image to LaTeX 100k dataset, which provides images of mathematical 
+    formulas rendered on A4 pages and corresponding LaTeX representations. This dataset 
+    is used to train models for image-to-LaTeX conversion tasks.
+
+    The dataset consists of three main splits: 
+    - "train": Used for training the model.
+    - "validation": Used for checking the model's performance during training to monitor 
+      accuracy and avoid overfitting.
+    - "test": Used for final evaluation of the model's performance.
+
+    Parameters:
+    ===========
+    root_path : str
+        The root directory containing the dataset files.
+    split : str, optional (default = "train")
+        The dataset split to use. Must be one of "train", "validation", or "test".
+    
+    Methods:
+    ========
+    _get_dataframe(file_path: str) -> pd.DataFrame:
+        Reads the specified dataset split file and returns a DataFrame containing the 
+        formula index, image name, and render type. The formula index is replaced by the 
+        corresponding LaTeX formula from the im2latex_formulas.lst file.
+
+    __len__() -> int:
+        Returns the total number of samples in the dataset.
+
+    __getitem__(idx: int) -> Dict:
+        Retrieves the image and the corresponding ground truth formula for a given index. 
+        The image is loaded from the formula_images directory and converted to RGB. If the 
+        image cannot be loaded, it returns None.
+    """
     def __init__(self, 
                  root_path:str,
                  split: str = "train"):
@@ -247,6 +280,93 @@ class TexDataset(Dataset):
         return {"image": img, 
                 "ground_truth": formula}
     
+class CROHMEDataset(Dataset):
+    """
+    A custom PyTorch Dataset class for loading the CROHME dataset, which contains images of mathematical formulas and corresponding LaTeX labels.
+
+    This class supports loading different splits (train, validation, test) of the CROHME dataset. The dataset includes a "caption.txt" file containing the formulas and their corresponding image IDs. Images are stored in BMP format in the associated directory. Formulas are preprocessed to remove spaces.
+
+    Parameters
+    ----------
+    root_path : str
+        The root directory of the dataset containing different splits and subsets.
+    split : str, optional
+        The dataset split to load, by default "train". The possible options are:
+            - "train": Loads training data.
+            - "validation": Loads validation data from a specific subset (user inputs '2014', '2016', or '2019').
+            - "test": Loads test data from a specific subset (user inputs '2014', '2016', or '2019').
+
+    Attributes
+    ----------
+    file_path : str
+        Path to the caption file (caption.txt) containing image IDs and formula labels.
+    img_dir : str
+        Path to the directory containing BMP images corresponding to formulas.
+    df : pd.DataFrame
+        DataFrame containing image IDs and their corresponding LaTeX formulas. Spaces in formulas are removed for cleaner processing.
+    
+    Methods
+    -------
+    _get_dataframe(file_path: str) -> pd.DataFrame
+        Reads the caption file and loads it into a DataFrame. Spaces in formulas are removed.
+    
+    __len__() -> int
+        Returns the number of samples (rows) in the dataset.
+    
+    __getitem__(idx: int) -> Dict
+        Retrieves the image and corresponding LaTeX formula for the given index.
+        Returns a dictionary containing:
+            - "image": The PIL image object of the BMP image.
+            - "ground_truth": The corresponding LaTeX formula as a string.
+
+    Raises
+    ------
+    ValueError
+        If an invalid split is provided (i.e., anything other than "train", "validation", or "test").
+    
+    Notes
+    -----
+    - The `validation` and `test` splits require additional user input to select a specific subset ('2014', '2016', or '2019').
+    - Images are opened using the PIL library and converted to RGB format. If the image cannot be opened, None is returned.
+    """
+    
+    def __init__(self, 
+                 root_path:str,
+                 split: str = "train"):
+        super().__init__()
+        if split not in ["train", "validation", "test"]:
+            raise ValueError("split should be either 'train' or 'valid' or 'test'")
+        if split == "train":
+            self.file_path = os.path.join(root_path, split, "caption.txt")
+            self.img_dir = os.path.join(root_path, split, "img")
+        elif split in ["validation", "test"]:
+            subset = input("Enter the subset name ['2014', '2016' , '2019']: ")
+            self.file_path = os.path.join(root_path, subset, "caption.txt")
+            self.img_dir = os.path.join(root_path, subset, "img")
+        
+        self.df = self._get_dataframe(self.file_path)
+
+    def _get_dataframe(self, file_path: str) -> pd.DataFrame:
+        df = pd.read_csv(file_path, sep="\t", header=None, names=["image", "formula"])
+        df["formula"] = df["formula"].str.replace(" ", "")
+        return df    
+    
+    def __len__(self) -> int:
+        return len(self.df)
+
+    def __getitem__(self, idx: int) -> Dict:
+        formula = self.df['formula'].iloc[idx]
+        image = self.df['image'].iloc[idx]
+        img_path = os.path.join(self.img_dir , "{}.bmp".format(image))
+        try:
+            img = Image.open(img_path).convert("RGB")
+        except UnidentifiedImageError:
+            logging.info("Image %s could not be opened.", img_path)
+            return None
+        return {"image": img, 
+                "ground_truth": formula}
+
+
 
 class NougatDataset(Dataset):
     """
@@ -269,10 +389,12 @@ class NougatDataset(Dataset):
         self.perturb = "NOUGAT_PERTURB" in os.environ and os.environ["NOUGAT_PERTURB"]
         # TODO improve naming conventions
         template = "%s"
-        # self.dataset = SciPDFDataset(
+        # self.dataset = SciPDFDataset(               # Scientific PDF dataset
         #     dataset_path, split=self.split, template=template, root_name=root_name
         # )
-        self.dataset = TexDataset(dataset_path, split=self.split)
+        # self.dataset = TexDataset(dataset_path, split=self.split) # Image to Latex 100k dataset
+
+        self.dataset = CROHMEDataset(dataset_path, split=self.split) # CROHME dataset
         self.dataset_length = len(self.dataset)
 
     def __len__(self) -> int:
