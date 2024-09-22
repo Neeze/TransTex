@@ -77,12 +77,13 @@ class SwinEncoder(nn.Module):
             embed_dim=self.embed_dim,
             num_heads=self.num_heads,
             num_classes=0,
+            drop_path_rate=0.5,
         )
 
         # weight init with swin
         if not name_or_path:
             swin_state_dict = timm.create_model(
-                "swin_base_patch4_window12_384", pretrained=True
+                "swin_base_patch4_window12_384_finetune", pretrained=True
             ).state_dict()
             new_swin_state_dict = self.model.state_dict()
             for x in new_swin_state_dict:

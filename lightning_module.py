@@ -38,7 +38,7 @@ class NougatModelPLModule(pl.LightningModule):
                 embed_dim=self.config.embed_dim,
                 num_heads=self.config.num_heads,
                 hidden_dimension=self.config.hidden_dimension,
-                ignore_mismatched_sizes=True,
+                ignore_mismatched_sizes=True, 
             )
         else:
             self.model = NougatModel(
@@ -54,6 +54,7 @@ class NougatModelPLModule(pl.LightningModule):
                     embed_dim=self.config.embed_dim,
                     num_heads=self.config.num_heads,
                     hidden_dimension=self.config.hidden_dimension,
+                    name_or_path = self.config.name_or_path,
                 )
             )
 
