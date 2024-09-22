@@ -392,9 +392,9 @@ class NougatDataset(Dataset):
         # self.dataset = SciPDFDataset(               # Scientific PDF dataset
         #     dataset_path, split=self.split, template=template, root_name=root_name
         # )
-        # self.dataset = TexDataset(dataset_path, split=self.split) # Image to Latex 100k dataset
+        self.dataset = TexDataset(dataset_path, split=self.split) # Image to Latex 100k dataset
 
-        self.dataset = CROHMEDataset(dataset_path, split=self.split) # CROHME dataset
+        # self.dataset = CROHMEDataset(dataset_path, split=self.split) # CROHME dataset
         self.dataset_length = len(self.dataset)
 
     def __len__(self) -> int:
