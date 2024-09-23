@@ -146,3 +146,4 @@ pdfs
 # Data
 data/
 test_everything.py
+proposed/**
