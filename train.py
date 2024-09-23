@@ -169,8 +169,7 @@ def train(config):
     custom_ckpt = CustomCheckpointIO()
 
     if not config.debug:
-        logger = Logger(config.exp_name, project="Nougat", config=dict(config))
-        logger.watch(model_module.model, log="all", log_freq=100)
+        logger = Logger(config.exp_name, project="Nougat", config=dict(config), log_model="all")
     else:
         logger = TensorBoardLogger(
             save_dir=config.result_path,
