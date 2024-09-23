@@ -170,6 +170,7 @@ def train(config):
 
     if not config.debug:
         logger = Logger(config.exp_name, project="Nougat", config=dict(config))
+        logger.watch(model_module.model, log="all", log_freq=100)
     else:
         logger = TensorBoardLogger(
             save_dir=config.result_path,
