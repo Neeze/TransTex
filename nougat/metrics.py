@@ -28,7 +28,9 @@ def compute_metrics(pred, gt, minlen=4):
     metrics = {}
     if len(pred) < minlen or len(gt) < minlen:
         return metrics
-    metrics["edit_dist"] = edit_distance(pred, gt) / max(len(pred), len(gt))
+    
+    edit_dist_raw = edit_distance(pred, gt)  # Raw edit distance
+    metrics["edit_dist"] = edit_dist_raw / max(len(pred), len(gt))
     reference = gt.split()
     hypothesis = pred.split()
     metrics["bleu"] = nltk.translate.bleu([reference], hypothesis)
@@ -41,6 +43,17 @@ def compute_metrics(pred, gt, minlen=4):
     metrics["precision"] = nltk.scores.precision(reference, hypothesis)
     metrics["recall"] = nltk.scores.recall(reference, hypothesis)
     metrics["f_measure"] = nltk.scores.f_measure(reference, hypothesis)
+
+    # Adding ExpRate (Expression Recognition Rate) metric
+    
+    if pred == gt:
+        metrics["exp_rate"] = 1  # Perfect match
+    else:
+        metrics["exp_rate"] = 0  # Mismatch
+    # Adding tolerance-based ExpRate metrics (≤1, ≤2, ≤3 errors)
+    metrics["exp_rate_≤1"] = 1 if edit_dist_raw <= 1 else 0
+    metrics["exp_rate_≤2"] = 1 if edit_dist_raw <= 2 else 0
+    metrics["exp_rate_≤3"] = 1 if edit_dist_raw <= 3 else 0
     return metrics
 
 
