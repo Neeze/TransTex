@@ -219,7 +219,6 @@ class NougatModelPLModule(pl.LightningModule):
         self.model.decoder.tokenizer.save_pretrained(save_path)
         print("BACKUP TO RCLONE")
         try:
-            os.system("ls {save_path}")
             os.system("echo Zipping the model...")
             os.system(f"zip -r {self.config.exp_version}.zip {save_path}")
             os.system("echo Uploading to rclone...")
