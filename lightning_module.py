@@ -67,8 +67,6 @@ class NougatModelPLModule(pl.LightningModule):
         self.save_hyperparameters()
         
 
-        
-
     def training_step(self, batch, batch_idx):
         image_tensors, decoder_input_ids, attention_masks = list(), list(), list()
         if batch is None:
@@ -216,8 +214,22 @@ class NougatModelPLModule(pl.LightningModule):
             / self.config.exp_name
             / self.config.exp_version
         )
+        print(f"Saving the model to {save_path}")
         self.model.save_pretrained(save_path)
         self.model.decoder.tokenizer.save_pretrained(save_path)
+        print("BACKUP TO RCLONE")
+        try:
+            os.system("echo Zipping the model...")
+            os.system(f"zip -r {self.config.exp_version}.zip {save_path}")
+            os.system("echo Uploading to rclone...")
+            os.system(f"rclone copy --verbose {self.config.exp_version}.zip one_drive:'Projects/HMER Project/Checkpoints'")
+            os.system("echo Removing the zip file...")
+            os.system(f"rm {self.config.exp_version}.zip")
+            os.system("echo Removing the model...")
+            os.system(f"rm -rf {save_path}")
+            os.system("echo Done")
+        except
+            print("Failed to backup to rclone")
 
 
 class NougatDataPLModule(pl.LightningDataModule):
