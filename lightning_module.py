@@ -225,8 +225,8 @@ class NougatModelPLModule(pl.LightningModule):
             os.system(f"rclone copy --verbose {self.config.exp_version}.zip one_drive:'Projects/HMER Project/Checkpoints'")
             os.system("echo Removing the zip file...")
             os.system(f"rm {self.config.exp_version}.zip")
-            os.system("echo Removing the model...")
-            os.system(f"rm -rf {save_path}")
+            # os.system("echo Removing the model...")
+            # os.system(f"rm -rf {save_path}")
             os.system("echo Done")
         except:
             print("Failed to backup to rclone")
