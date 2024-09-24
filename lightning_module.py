@@ -228,7 +228,7 @@ class NougatModelPLModule(pl.LightningModule):
             os.system("echo Removing the model...")
             os.system(f"rm -rf {save_path}")
             os.system("echo Done")
-        except
+        except:
             print("Failed to backup to rclone")
 
 
