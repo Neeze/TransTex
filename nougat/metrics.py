@@ -37,20 +37,19 @@ def compute_metrics(pred, gt, minlen=4):
     # try:
     #     metrics["meteor"] = nltk.translate.meteor_score([reference], hypothesis)
     # except LookupError:
-    metrics["meteor"] = np.nan
+    # metrics["meteor"] = np.nan
     reference = set(reference)
     hypothesis = set(hypothesis)
     metrics["precision"] = nltk.scores.precision(reference, hypothesis)
     metrics["recall"] = nltk.scores.recall(reference, hypothesis)
     metrics["f_measure"] = nltk.scores.f_measure(reference, hypothesis)
-
-    # Adding ExpRate (Expression Recognition Rate) metric
     
+    # ExpRate metric
     if pred == gt:
-        metrics["exp_rate"] = 1  # Perfect match
+        metrics["exp_rate"] = 1  
     else:
-        metrics["exp_rate"] = 0  # Mismatch
-    # Adding tolerance-based ExpRate metrics (≤1, ≤2, ≤3 errors)
+        metrics["exp_rate"] = 0 
+    # tolerance-based ExpRate metrics (≤1, ≤2, ≤3 errors)
     metrics["exp_rate_≤1"] = 1 if edit_dist_raw <= 1 else 0
     metrics["exp_rate_≤2"] = 1 if edit_dist_raw <= 2 else 0
     metrics["exp_rate_≤3"] = 1 if edit_dist_raw <= 3 else 0
