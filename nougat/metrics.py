@@ -24,7 +24,19 @@ display_reg = re.compile(r"\\\[(.+?)(?<!\\)\\\]")
 table_reg = re.compile(r"\\begin\{tabular\}(.+?)(?:\\end\{tabular\}|$)", re.S)
 
 
-def compute_metrics(pred, gt, minlen=4):
+def compute_metrics(pred: str, gt: str, minlen=4):
+    """
+    Compute metrics for a single prediction.
+
+    Args:
+        pred: The predicted text.
+        gt: The ground truth text.
+        minlen: The minimum length of the text to compute metrics.
+
+    Returns:
+        A dictionary of metrics.
+    """
+
     metrics = {}
     if len(pred) < minlen or len(gt) < minlen:
         return metrics
