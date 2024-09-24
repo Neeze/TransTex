@@ -7,7 +7,7 @@ Copyright (c) Meta Platforms, Inc. and affiliates.
 import math
 import random
 from pathlib import Path
-
+import os
 import numpy as np
 import lightning.pytorch as pl
 import torch
@@ -109,6 +109,17 @@ class NougatModelPLModule(pl.LightningModule):
             "val/" + key: sum(values) / len(values) for key, values in metrics.items()
         }
         self.validation_step_outputs.append(scores)
+
+        # Append the results to a file
+        with open(os.path.join(self.config.result_path, 'validation.txt'), "a", encoding="utf-8") as f:
+            f.write("="*50 + "\n")
+            f.write("="*50 + "\n")
+            for gt, pred in zip(gts, preds):
+                f.write("="*50 + "\n")
+                f.write(
+                    f"{dataset_idx}\t{gt}\t{pred}\n"
+                )
+
         return scores
 
     def on_validation_epoch_end(self):
