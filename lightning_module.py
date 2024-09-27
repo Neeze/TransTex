@@ -58,10 +58,12 @@ class NougatModelPLModule(pl.LightningModule):
                 )
             )
 
-        # Freeze the encoder if required
-        # print(f"Freeze the encoder...")
-        # for param in self.model.encoder.parameters():
-        #     param.requires_grad = False
+        print(f"Unfreezing the encoder...")
+        for param in self.model.encoder.parameters():
+            param.requires_grad = True
+        print(f"Unfreezing the decoder...")
+        for param in self.model.decoder.parameters():
+            param.requires_grad = True
 
         # Save LightningModule parameters
         self.save_hyperparameters()
