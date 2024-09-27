@@ -225,7 +225,7 @@ class NougatModelPLModule(pl.LightningModule):
             subprocess.run(["echo", "Zipping the model..."])
             subprocess.run(["zip", "-r", f"{self.config.exp_version}.zip", save_path])
             subprocess.run(["echo", "Uploading to rclone..."])
-            subprocess.run(["rclone", "copy", "--verbose", f"{self.config.exp_version}.zip", "one_drive:'Projects/HMER Project/Checkpoints'"])
+            subprocess.run(["rclone", "copy", "--verbose", f"{self.config.exp_version}.zip", "one_drive:Projects/HMER Project/Checkpoints"])
             subprocess.run(["echo", "Removing the zip file..."])
             subprocess.run(["rm", f"{self.config.exp_version}.zip"])
             subprocess.run(["echo", "Removing the model..."])
