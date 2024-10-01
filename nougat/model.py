@@ -77,13 +77,12 @@ class SwinEncoder(nn.Module):
             embed_dim=self.embed_dim,
             num_heads=self.num_heads,
             num_classes=0,
-            drop_path_rate=0.5,
         )
 
         # weight init with swin
         if not name_or_path:
             swin_state_dict = timm.create_model(
-                f"{name_or_path}", pretrained=True
+                "swin_base_patch4_window12_384", pretrained=True
             ).state_dict()
             new_swin_state_dict = self.model.state_dict()
             for x in new_swin_state_dict:
@@ -113,9 +112,6 @@ class SwinEncoder(nn.Module):
                 else:
                     new_swin_state_dict[x] = swin_state_dict[x]
             self.model.load_state_dict(new_swin_state_dict)
-            
-            # print(f"Loading SwinTransformer weights from pretrained model code name {name_or_path}")
-            # self.model.load_state_dict(swin_state_dict)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -518,7 +514,7 @@ class NougatModel(PreTrainedModel):
         self.decoder = BARTDecoder(
             max_position_embeddings=self.config.max_position_embeddings,
             decoder_layer=self.config.decoder_layer,
-            # name_or_path=self.config.name_or_path,
+            name_or_path=self.config.name_or_path,
             hidden_dimension=self.config.hidden_dimension,
         )
 
